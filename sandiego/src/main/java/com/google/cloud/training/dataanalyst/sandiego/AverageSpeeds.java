@@ -80,6 +80,7 @@ public class AverageSpeeds {
     // window
     System.out.println("Averaging interval = " + averagingInterval);
     System.out.println("Averaging freq = " + averagingFrequency);
+    System.out.println("My Topic = " + topic);
 
     // Build the table schema for the output table.
     List<TableFieldSchema> fields = new ArrayList<>();
