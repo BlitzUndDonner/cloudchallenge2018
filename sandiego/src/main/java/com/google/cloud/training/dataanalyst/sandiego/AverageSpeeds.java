@@ -64,6 +64,8 @@ public class AverageSpeeds {
 
   @SuppressWarnings("serial")
   public static void main(String[] args) {
+      String[] args2 = args;
+      System.out.println(args2);
     MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
     options.setStreaming(true);
     Pipeline p = Pipeline.create(options);

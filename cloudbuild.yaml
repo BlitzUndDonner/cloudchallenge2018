@@ -1,0 +1,9 @@
+steps:
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', 'https://github.com/Hofmaier/cloudchallenge2018.git']
+- name: 'gcr.io/cloud-builders/mvn'
+  dir: 'cloudchallenge2018/sandiego'
+  args: ['compile', '-e']
+- name: 'gcr.io/cloud-builders/mvn'
+  dir: 'cloudchallenge2018/sandiego'
+  args: ['exec:java', '-Dexec.mainClass=com.google.cloud.training.dataanalyst.sandiego.AverageSpeeds', '-Dexec.args=','"--project=cloudchallenge-222217"', --stagingLocation=gs://cloudchallenge-222217/staging --tempLocation=--stagingLocation=gs://cloudchallenge-22221/staging --runner=DataflowRunner"']
