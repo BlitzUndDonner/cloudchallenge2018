@@ -66,7 +66,7 @@ public class AverageSpeeds {
   public static void main(String[] args) {
       String[] args2 = args;
       for(int i = 0; i<args2.length; i++) {
-	  System.out.println("argument " + i + " : " + str);
+	  System.out.println("argument " + i + " : " + args2[i]);
       }
       
     MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
