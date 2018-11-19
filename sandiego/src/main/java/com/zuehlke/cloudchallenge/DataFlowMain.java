@@ -56,7 +56,7 @@ public class DataFlowMain {
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
         currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()))
-                .apply("WriteToPubSub", PubsubIO.writeAvros(ProcessedFlightMessageDto.class));
+                .apply("WriteToPubSub", PubsubIO.writeAvros(ProcessedFlightMessageDto.class).to(responseTopic));
 
         currentFlightMessages
                 .apply("WriteBigQueryRow", ParDo.of(new BigQueryRowWriter()))
