@@ -22,7 +22,7 @@ def counters(request):
     countByAirport = query_bigquery(airport)  
     
     logging.info('Count for airport \'%s\' = %d', airport, countByAirport)
-    return countByAirport
+    return str(countByAirport)
     
     
 
