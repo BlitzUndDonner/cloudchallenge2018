@@ -32,14 +32,19 @@ public class DataFlowMain {
         Pipeline p = Pipeline.create(options);
 
         String topic = "projects/" + options.getProject() + "/topics/" + "request-t1-europe-north1";
+        String outputTopic = "projects/" + options.getProject() + "/topics/" + "response-t1-europe-north1";
         System.out.println(topic);
 
         PCollection<FlightMessageDto> currentFlightMessages = p
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(topic))
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
+             //  currentFlightMessages.apply("WriteToPubSub", PubsubIO.writeAvros(FlightMessageDto.class));
+
+
         currentFlightMessages
                 .apply("WriteToBigQueryTable", ParDo.of(new BigQueryTableWriter()));
+
 
         p.run();
     }
