@@ -16,10 +16,12 @@ def counters(request):
     
     path = request.path
     airport = path.split('/')[-1]
+    if airport == 'counters':
+        raise Exception('No airport specified')
     
     countByAirport = query_bigquery(airport)  
     
-    logging.info("Count for airport '%s' = %d", airport, countByAirport)
+    logging.info('Count for airport \'%s\' = %d', airport, countByAirport)
     return countByAirport
     
     
