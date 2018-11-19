@@ -14,14 +14,13 @@ def counters(request):
         <http://flask.pocoo.org/docs/0.12/api/#flask.Flask.make_response>.
     """
     
-    #path = request.path
-    #airport = path.split('/')[-1]
+    path = request.path
+    airport = path.split('/')[-1]
     
-    airport = 'ZRH'
     countByAirport = query_bigquery(airport)  
     
     logging.info("Count for airport '%s' = %d", airport, countByAirport)
-    return airport
+    return countByAirport
     
     
 
