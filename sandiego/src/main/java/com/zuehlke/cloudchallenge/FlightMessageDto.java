@@ -1,14 +1,19 @@
 package com.zuehlke.cloudchallenge;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 
 public class FlightMessageDto {
+    @JsonProperty("flight-number")
     private String flightNumber;
+
     private String airport;
     private String message;
     private String timestamp;
+
+    @JsonProperty("message-word-count")
     private int messageWordCount;
 
     public FlightMessageDto() {
