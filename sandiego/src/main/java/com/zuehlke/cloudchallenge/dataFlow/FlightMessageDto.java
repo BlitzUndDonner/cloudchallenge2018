@@ -1,5 +1,6 @@
-package com.zuehlke.cloudchallenge;
+package com.zuehlke.cloudchallenge.dataFlow;
 
+import com.zuehlke.cloudchallenge.IllegalMessageException;
 import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.coders.DefaultCoder;
 import org.codehaus.jackson.annotate.JsonProperty;
