@@ -4,5 +4,5 @@ steps:
   - functions
   - deploy
   - airport_counter
-  - --source=./functions/airport_counter.py
+  - --source=./functions
   - --trigger-http
