@@ -1,13 +1,7 @@
 package com.zuehlke.cloudchallenge.dataFlow;
 
-import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
-import com.google.api.services.bigquery.model.TableSchema;
-import com.zuehlke.cloudchallenge.FlightMessageDto;
 import org.apache.beam.sdk.transforms.DoFn;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BigQueryRowWriter extends DoFn<FlightMessageDto, TableRow> {
 

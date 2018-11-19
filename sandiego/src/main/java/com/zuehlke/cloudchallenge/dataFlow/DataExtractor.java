@@ -1,6 +1,5 @@
 package com.zuehlke.cloudchallenge.dataFlow;
 
-import com.zuehlke.cloudchallenge.FlightMessageDto;
 import com.zuehlke.cloudchallenge.IllegalMessageException;
 import org.apache.beam.sdk.transforms.DoFn;
 

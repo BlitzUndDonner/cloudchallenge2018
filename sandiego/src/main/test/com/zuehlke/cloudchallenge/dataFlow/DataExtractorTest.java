@@ -1,6 +1,5 @@
 package com.zuehlke.cloudchallenge.dataFlow;
 
-import com.zuehlke.cloudchallenge.FlightMessageDto;
 import org.apache.beam.sdk.transforms.DoFn.ProcessContext;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

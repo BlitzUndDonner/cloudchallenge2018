@@ -1,8 +1,8 @@
-package com.zuehlke.cloudchallenge;
+package com.zuehlke.cloudchallenge.dataFlow;
 
+import com.zuehlke.cloudchallenge.dataFlow.FlightMessageDto;
 import com.zuehlke.cloudchallenge.dataFlow.ProcessedFlightMessageDto;
 import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.ParDo;
 
 /**
  * @author Lukas Hofmaier
