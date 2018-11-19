@@ -1,7 +1,6 @@
 package com.zuehlke.cloudchallenge;
 
 import com.google.api.services.bigquery.model.TableFieldSchema;
-import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import com.zuehlke.cloudchallenge.dataFlow.*;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
@@ -46,25 +45,38 @@ public class DataFlowMain {
         PipelineOptionsFactory.register(DataFlowOptions.class);
 
         options.setStreaming(true);
-        options.setFilesToStage(Collections.emptyList());
+       // options.setFilesToStage(Collections.emptyList());
 
         Pipeline p = Pipeline.create(options);
 
         String requestTopic = "projects/" + options.getProject() + "/topics/" + options.getRequestTopic();
         String responseTopic = "projects/" + options.getProject() + "/topics/" + options.getResponseTopic();
-        System.out.println(requestTopic);
+        System.out.println("RequestTopic: " + requestTopic);
 
         PCollection<FlightMessageDto> currentFlightMessages = p
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(requestTopic))
-                .apply("SetWindowing", assignMessageWindowFn())
+               // .apply("SetWindowing", assignMessageWindowFn())
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
+        /*
         currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()))
                 .apply("WriteToPubSub", PubsubIO.writeAvros(ProcessedFlightMessageDto.class).to(responseTopic));
+*/
+        String table = options.getProject() + ":flight_messages.raw_flight_messages";
+        List<TableFieldSchema> fields = new ArrayList<>();
+        fields.add(new TableFieldSchema().setName("timestamp").setType("TIMESTAMP"));
+        fields.add(new TableFieldSchema().setName("flight_number").setType("STRING"));
+        fields.add(new TableFieldSchema().setName("airport").setType("STRING"));
+        fields.add(new TableFieldSchema().setName("message").setType("STRING"));
+
+        TableSchema schema = new TableSchema().setFields(fields);
 
         currentFlightMessages
                 .apply("WriteBigQueryRow", ParDo.of(new BigQueryRowWriter()))
-                .apply(writeToTable(options));
+                .apply(BigQueryIO.writeTableRows().to(table)//
+                        .withSchema(schema)//
+                        .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
+                        .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED));
 
         PipelineResult result = p.run();
         result.waitUntilFinish();
@@ -83,19 +95,4 @@ public class DataFlowMain {
                 .discardingFiredPanes();
     }
 
-    private static BigQueryIO.Write<TableRow> writeToTable(DataFlowOptions options) {
-        String table = options.getProject() + ":flight_messages.raw_flight_messages";
-        List<TableFieldSchema> fields = new ArrayList<>();
-        fields.add(new TableFieldSchema().setName("timestamp").setType("TIMESTAMP"));
-        fields.add(new TableFieldSchema().setName("flight_number").setType("STRING"));
-        fields.add(new TableFieldSchema().setName("airport").setType("STRING"));
-        fields.add(new TableFieldSchema().setName("message").setType("STRING"));
-
-        TableSchema schema = new TableSchema().setFields(fields);
-
-        return BigQueryIO.writeTableRows().to(table)//
-                .withSchema(schema)//
-                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
-                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED);
-    }
 }

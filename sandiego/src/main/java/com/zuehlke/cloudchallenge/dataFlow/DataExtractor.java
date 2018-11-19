@@ -9,10 +9,10 @@ public class DataExtractor extends DoFn<String, FlightMessageDto> {
     @ProcessElement
     public void processElement(ProcessContext c) {
         String raw = c.element();
-        String line = new String(Base64.getDecoder().decode(raw));
-        System.out.println(line);
+        System.out.println(raw);
+       // String line = new String(Base64.getDecoder().decode(raw));
         try {
-            c.output(FlightMessageDto.of(line));
+            c.output(FlightMessageDto.of(raw));
         } catch (IllegalMessageException e) {
             e.printStackTrace();
         }
