@@ -1,4 +1,9 @@
-def airport_counter(request):
+import logging 
+from google.cloud import bigquery
+
+DATASET_ID = 'cloud-hackathon-team-athena:flight_messages'
+
+def counters(request):
     """HTTP Cloud Function.
     Args:
         request (flask.Request): The request object.
@@ -8,4 +13,21 @@ def airport_counter(request):
         Response object using `make_response`
         <http://flask.pocoo.org/docs/0.12/api/#flask.Flask.make_response>.
     """
-    return 'Hello, CloudChallenge2018!'
+    
+    #path = request.path
+    #airport = path.split('/')[-1]
+    
+    airport = 'ZRH'
+    countByAirport = query_bigquery(airport)  
+    
+    logging.info("Count for airport '%s' = %d", airport, countByAirport)
+    return airport
+    
+    
+
+def query_bigquery(airport_code):
+    # Instantiates a client
+    bigquery_client = bigquery.Client()
+    query_job = bigquery_client.query("SELECT COUNT(*) FROM flight_messages.raw_flight_messages WHERE airport = " + airport_code)
+    results = query_job.result() 
+    return results[0]
