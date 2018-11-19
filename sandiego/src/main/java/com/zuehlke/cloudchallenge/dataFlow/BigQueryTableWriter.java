@@ -11,6 +11,8 @@ public class BigQueryTableWriter extends DoFn<FlightMessageDto, TableRow> {
 
         TableRow row = new TableRow();
 
+
+
         c.output(row);
     }
 }
