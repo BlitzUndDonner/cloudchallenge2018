@@ -11,6 +11,6 @@ steps:
   args:
   - functions
   - deploy
-  - [airport_counter]
+  - airport_counter
   - --source=./functions/airport_counter.py
   - --trigger-http
