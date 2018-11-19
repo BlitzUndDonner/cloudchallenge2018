@@ -14,7 +14,7 @@ public class FlightMessageDto {
     public FlightMessageDto() {
     }
 
-    static FlightMessageDto of(String line) throws IllegalMessageException {
+    public static FlightMessageDto of(String line) throws IllegalMessageException {
         try {
             return new ObjectMapper().readValue(line, FlightMessageDto.class);
         } catch (IOException e) {
