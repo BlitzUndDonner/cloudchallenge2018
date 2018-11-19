@@ -13,7 +13,9 @@ import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.windowing.*;
 import org.apache.beam.sdk.values.PCollection;
+import org.joda.time.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +56,7 @@ public class DataFlowMain {
 
         PCollection<FlightMessageDto> currentFlightMessages = p
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(requestTopic))
+                .apply("SetWindowing", assignMessageWindowFn())
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
         currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()))
@@ -65,6 +68,19 @@ public class DataFlowMain {
 
         PipelineResult result = p.run();
         result.waitUntilFinish();
+    }
+
+    private static Window<String> assignMessageWindowFn() {
+        return Window.<String>into(FixedWindows.of(Duration.standardSeconds(5)))
+                .withAllowedLateness(Duration.standardDays(1))
+                .triggering(AfterWatermark.pastEndOfWindow()
+                        .withEarlyFirings(AfterPane.elementCountAtLeast(1))
+                        .withLateFirings(AfterFirst.of(
+                                AfterPane.elementCountAtLeast(1),
+                                AfterProcessingTime.pastFirstElementInPane()
+                                        .plusDelayOf(Duration.standardSeconds(1))
+                        )))
+                .discardingFiredPanes();
     }
 
     private static BigQueryIO.Write<TableRow> writeToTable(DataFlowOptions options) {
