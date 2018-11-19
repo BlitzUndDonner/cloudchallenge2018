@@ -8,6 +8,7 @@ import com.zuehlke.cloudchallenge.dataFlow.BigQueryRowWriter;
 import com.zuehlke.cloudchallenge.dataFlow.DataExtractor;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -47,7 +48,7 @@ public class DataFlowMain {
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(topic))
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
-        currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()));
+        //currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()));
 
              //  currentFlightMessages.apply("WriteToPubSub", PubsubIO.writeAvros(FlightMessageDto.class));
 
@@ -57,7 +58,8 @@ public class DataFlowMain {
                 .apply(writeToTable(options));
 
 
-        p.run();
+        final PipelineResult run = p.run();
+        run.waitUntilFinish();
     }
 
     private static BigQueryIO.Write<TableRow> writeToTable(DataFlowOptions options) {
