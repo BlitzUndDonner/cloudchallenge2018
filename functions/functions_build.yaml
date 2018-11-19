@@ -8,3 +8,4 @@ steps:
   - --trigger-http
   - --runtime=python37
   - --region=europe-west1
+  - --set-env-vars REGION=europe-west1
