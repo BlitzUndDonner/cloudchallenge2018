@@ -6,6 +6,7 @@ import com.google.api.services.bigquery.model.TableSchema;
 import com.zuehlke.cloudchallenge.dataFlow.*;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
 import org.apache.beam.sdk.options.Default;
@@ -62,7 +63,8 @@ public class DataFlowMain {
                 .apply("WriteBigQueryRow", ParDo.of(new BigQueryRowWriter()))
                 .apply(writeToTable(options));
 
-        p.run();
+        PipelineResult result = p.run();
+        result.waitUntilFinish();
     }
 
     private static BigQueryIO.Write<TableRow> writeToTable(DataFlowOptions options) {
