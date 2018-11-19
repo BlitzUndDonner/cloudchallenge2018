@@ -1,0 +1,7 @@
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - functions
+  - deploy
+  - airport_counter
+  - --source=./functions/airport_counter.py
+  - --trigger-http
