@@ -1,4 +1,4 @@
-def hello_get(request):
+def airport_counter(request):
     """HTTP Cloud Function.
     Args:
         request (flask.Request): The request object.
