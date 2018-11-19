@@ -3,17 +3,19 @@ package com.zuehlke.cloudchallenge;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
-import com.google.cloud.training.dataanalyst.sandiego.LaneInfo;
-import com.zuehlke.cloudchallenge.dataFlow.BigQueryRowWriter;
-import com.zuehlke.cloudchallenge.dataFlow.DataExtractor;
+import com.zuehlke.cloudchallenge.dataFlow.*;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
+import org.apache.beam.sdk.options.Default;
+import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.windowing.*;
 import org.apache.beam.sdk.values.PCollection;
+import org.joda.time.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,11 +24,17 @@ import java.util.List;
 public class DataFlowMain {
 
     public interface DataFlowOptions extends DataflowPipelineOptions {
-/*
-@Description("the topic to consume messages from")
+        @Description("the topic to consume messages from")
         @Default.String("request-t1-europe-north1")
-        String getTopic();
-        */
+        String getRequestTopic();
+
+        void setRequestTopic(String requestTopic);
+
+        @Description("the topic to push messages to")
+        @Default.String("response-t1-europe-north1")
+        String getResponseTopic();
+
+        void setResponseTopic(String responseTopic);
     }
 
     public static void main(String[] args) {
@@ -35,16 +43,20 @@ public class DataFlowMain {
         }
 
         DataFlowOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(DataFlowOptions.class);
+        PipelineOptionsFactory.register(DataFlowOptions.class);
+
         options.setStreaming(true);
         options.setFilesToStage(Collections.emptyList());
+
         Pipeline p = Pipeline.create(options);
 
-        String topic = "projects/" + options.getProject() + "/topics/" + "request-t1-europe-north1";
-        String outputTopic = "projects/" + options.getProject() + "/topics/" + "response-t1-europe-north1";
-        System.out.println(topic);
+        String requestTopic = "projects/" + options.getProject() + "/topics/" + options.getRequestTopic();
+        String responseTopic = "projects/" + options.getProject() + "/topics/" + options.getResponseTopic();
+        System.out.println(requestTopic);
 
         PCollection<FlightMessageDto> currentFlightMessages = p
-                .apply("GetMessages", PubsubIO.readStrings().fromTopic(topic))
+                .apply("GetMessages", PubsubIO.readStrings().fromTopic(requestTopic))
+                .apply("SetWindowing", assignMessageWindowFn())
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
         currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()))
@@ -56,6 +68,19 @@ public class DataFlowMain {
 
         PipelineResult result = p.run();
         result.waitUntilFinish();
+    }
+
+    private static Window<String> assignMessageWindowFn() {
+        return Window.<String>into(FixedWindows.of(Duration.standardSeconds(5)))
+                .withAllowedLateness(Duration.standardDays(1))
+                .triggering(AfterWatermark.pastEndOfWindow()
+                        .withEarlyFirings(AfterPane.elementCountAtLeast(1))
+                        .withLateFirings(AfterFirst.of(
+                                AfterPane.elementCountAtLeast(1),
+                                AfterProcessingTime.pastFirstElementInPane()
+                                        .plusDelayOf(Duration.standardSeconds(1))
+                        )))
+                .discardingFiredPanes();
     }
 
     private static BigQueryIO.Write<TableRow> writeToTable(DataFlowOptions options) {
