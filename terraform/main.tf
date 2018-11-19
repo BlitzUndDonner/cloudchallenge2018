@@ -32,6 +32,29 @@ resource "google_bigquery_dataset" "default" {
   default_table_expiration_ms = 3600000
 }
 
+resource "google_storage_bucket" "dataflow-bucket" {
+  name     = "${var.project}-${var.dataset}"
+  location = "EU"
+
+  website {
+    main_page_suffix = "index.html"
+    not_found_page   = "404.html"
+  }
+}
+
+resource "google_bigquery_table" "default" {
+  dataset_id = "${google_bigquery_dataset.default.dataset_id}"
+  table_id   = "raw_flight_messages"
+  
+  time_partitioning {
+    field = "timestamp"
+    type = "DAY"    
+  }
+ 
+  schema = "${file("bigquery_schema.json")}"
+}
+ 
+
 resource "google_cloudbuild_trigger" "build_trigger_counters" {
   project = "${var.project}"
   trigger_template {
@@ -58,6 +81,7 @@ resource "google_cloudbuild_trigger" "build_trigger_dataflow" {
   filename = "cloudbuild.yaml"
     substitutions = {
     _REGION_NAME = "${var.region}"
+    _DATASET_NAME = "${var.dataset}"
   }
 }
 

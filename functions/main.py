@@ -1,7 +1,9 @@
 import logging 
+import os
 from google.cloud import bigquery
 
 DATASET_ID = 'cloud-hackathon-team-athena:flight_messages'
+REGION = os.environ['REGION']
 
 def counters(request):
     """HTTP Cloud Function.
@@ -21,7 +23,7 @@ def counters(request):
     
     countByAirport = query_bigquery(airport)  
     
-    logging.info('Count for airport \'%s\' = %d', airport, countByAirport)
+    logging.info('[%s] Count for airport \'%s\' = %d', REGION, airport, countByAirport)
     return str(countByAirport)
     
     
