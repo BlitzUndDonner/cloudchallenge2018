@@ -1,17 +1,25 @@
 package com.zuehlke.cloudchallenge;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.IOException;
+
 public class FlightMessageDto {
     private String flightNumber;
     private String airport;
     private String message;
     private String timestamp;
-    private String messageWordCount;
+    private int messageWordCount;
 
     public FlightMessageDto() {
     }
 
-    public static FlightMessageDto of(String line) throws IllegalMessageException {
-        return new FlightMessageDto();
+    static FlightMessageDto of(String line) throws IllegalMessageException {
+        try {
+            return new ObjectMapper().readValue(line, FlightMessageDto.class);
+        } catch (IOException e) {
+            throw new IllegalMessageException(e);
+        }
     }
 
     public String getFlightNumber() {
@@ -36,6 +44,8 @@ public class FlightMessageDto {
 
     public void setMessage(String message) {
         this.message = message;
+        //int length = message.split(" ").length;
+        //setMessageWordCount(length);
     }
 
     public String getTimestamp() {
@@ -46,11 +56,11 @@ public class FlightMessageDto {
         this.timestamp = timestamp;
     }
 
-    public String getMessageWordCount() {
+    public int getMessageWordCount() {
         return messageWordCount;
     }
 
-    public void setMessageWordCount(String messageWordCount) {
+    public void setMessageWordCount(int messageWordCount) {
         this.messageWordCount = messageWordCount;
     }
 }
