@@ -1,20 +1,22 @@
 package com.zuehlke.cloudchallenge;
 
+import com.zuehlke.cloudchallenge.dataFlow.BigQueryTableWriter;
+import com.zuehlke.cloudchallenge.dataFlow.DataExtractor;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
-import org.apache.beam.sdk.options.Default;
-import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.PCollection;
 
 public class DataFlowMain {
 
     public interface DataFlowOptions extends DataflowPipelineOptions {
-        @Description("the topic to consume messages from")
+/*
+@Description("the topic to consume messages from")
         @Default.String("request-t1-europe-north1")
         String getTopic();
+        */
     }
 
     public static void main(String[] args) {
@@ -23,22 +25,14 @@ public class DataFlowMain {
         options.setStreaming(true);
         Pipeline p = Pipeline.create(options);
 
-        String topic = "projects/" + options.getProject() + "/topics/" + options.getTopic();
+        String topic = "projects/" + options.getProject() + "/topics/" + "request-t1-europe-north1";
         System.out.println(topic);
 
-        p
+        PCollection<FlightMessageDto> currentFlightMessages = p
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(topic))
-                .apply("ExtractData", ParDo.of(new DoFn<String, FlightMessageDto>() {
-                    @ProcessElement
-                    public void processElement(ProcessContext c) {
-                        String line = c.element();
-                        System.out.println(line);
-                        try {
-                            c.output(FlightMessageDto.of(line));
-                        } catch (IllegalMessageException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }));
+                .apply("ExtractData", ParDo.of(new DataExtractor()));
+
+        currentFlightMessages
+                .apply("WriteToBigQueryTable", ParDo.of(new BigQueryTableWriter()));
     }
 }
