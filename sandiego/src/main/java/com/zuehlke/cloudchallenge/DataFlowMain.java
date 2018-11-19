@@ -79,7 +79,7 @@ public class DataFlowMain {
                         .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED));
 
         PipelineResult result = p.run();
-        result.waitUntilFinish();
+        // result.waitUntilFinish();
     }
 
 }
