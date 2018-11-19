@@ -10,6 +10,8 @@ import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
+import org.apache.beam.sdk.options.Default;
+import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -22,11 +24,17 @@ import java.util.List;
 public class DataFlowMain {
 
     public interface DataFlowOptions extends DataflowPipelineOptions {
-/*
-@Description("the topic to consume messages from")
+        @Description("the topic to consume messages from")
         @Default.String("request-t1-europe-north1")
-        String getTopic();
-        */
+        String getRequestTopic();
+
+        void setRequestTopic(String requestTopic);
+
+        @Description("the topic to push messages to")
+        @Default.String("response-t1-europe-north1")
+        String getResponseTopic();
+
+        void setResponseTopic(String responseTopic);
     }
 
     public static void main(String[] args) {
@@ -39,23 +47,19 @@ public class DataFlowMain {
         options.setFilesToStage(Collections.emptyList());
         Pipeline p = Pipeline.create(options);
 
-        String topic = "projects/" + options.getProject() + "/topics/" + "request-t1-europe-north1";
-        String outputTopic = "projects/" + options.getProject() + "/topics/" + "response-t1-europe-north1";
+        String topic = "projects/" + options.getProject() + "/topics/" + options.getRequestTopic();
+        String outputTopic = "projects/" + options.getProject() + "/topics/" + options.getResponseTopic();
         System.out.println(topic);
 
         PCollection<FlightMessageDto> currentFlightMessages = p
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(topic))
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
-        currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()));
-
-             //  currentFlightMessages.apply("WriteToPubSub", PubsubIO.writeAvros(FlightMessageDto.class));
-
+             currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()));//  currentFlightMessages.apply("WriteToPubSub", PubsubIO.writeAvros(FlightMessageDto.class));
 
         currentFlightMessages
                 .apply("WriteBigQueryRow", ParDo.of(new BigQueryRowWriter()))
                 .apply(writeToTable(options));
-
 
         p.run();
     }
