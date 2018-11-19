@@ -52,7 +52,7 @@ public class DataFlowMain {
     }
 
     private static BigQueryIO.Write<TableRow> writeToTable(DataFlowOptions options) {
-        String table = options.getProject() + ":raw_flight_messages";
+        String table = options.getProject() + ":flight_messages.raw_flight_messages";
         List<TableFieldSchema> fields = new ArrayList<>();
         fields.add(new TableFieldSchema().setName("timestamp").setType("TIMESTAMP"));
         fields.add(new TableFieldSchema().setName("flight_number").setType("STRING"));
