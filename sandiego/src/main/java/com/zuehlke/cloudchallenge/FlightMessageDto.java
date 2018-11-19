@@ -4,8 +4,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
+import java.io.Serializable;
 
-public class FlightMessageDto {
+public class FlightMessageDto implements Serializable {
     @JsonProperty("flight-number")
     private String flightNumber;
 
