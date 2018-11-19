@@ -40,5 +40,7 @@ public class DataFlowMain {
 
         currentFlightMessages
                 .apply("WriteToBigQueryTable", ParDo.of(new BigQueryTableWriter()));
+
+        p.run();
     }
 }
