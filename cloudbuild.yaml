@@ -7,10 +7,3 @@ steps:
 - name: 'gcr.io/cloud-builders/mvn'
   dir: 'cloudchallenge2018/sandiego'
   args: ['exec:java', '-Dexec.mainClass=com.google.cloud.training.dataanalyst.sandiego.AverageSpeeds', '-Dexec.args=--project=cloudchallenge-222217 --stagingLocation=gs://cloudchallenge-222217/staging --tempLocation=gs://cloudchallenge-222217/staging --runner=DataflowRunner']
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-  - functions
-  - deploy
-  - airport_counter
-  - --source=./functions/airport_counter.py
-  - --trigger-http
