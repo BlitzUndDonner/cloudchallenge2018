@@ -1,4 +1,7 @@
-def airport_counter(request):
+import logging 
+
+
+def counters(request):
     """HTTP Cloud Function.
     Args:
         request (flask.Request): The request object.
@@ -8,4 +11,12 @@ def airport_counter(request):
         Response object using `make_response`
         <http://flask.pocoo.org/docs/0.12/api/#flask.Flask.make_response>.
     """
-    return 'Hello, CloudChallenge2018!'
+    
+    path = request.path
+    airport = path.split('/')[-1]
+    
+    countByAirport = 0
+    
+    logging.info("Count for airport '%s' = %d", airport, count)
+    return airport
+    
