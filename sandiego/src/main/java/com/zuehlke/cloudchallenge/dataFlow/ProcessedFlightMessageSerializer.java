@@ -16,7 +16,7 @@ public class ProcessedFlightMessageSerializer extends DoFn<ProcessedFlightMessag
         ProcessedFlightMessageDto raw = c.element();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            c.output(mapper.writeValueAsString(raw));
+            c.output(mapper.writeValueAsString(raw.getFlightMessageDto()));
         } catch (IOException e) {
             LOG.error("failed to serialize message dto", e);
         }
