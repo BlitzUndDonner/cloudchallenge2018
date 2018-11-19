@@ -30,4 +30,8 @@ def query_bigquery(airport_code):
     bigquery_client = bigquery.Client()
     query_job = bigquery_client.query("SELECT COUNT(*) FROM flight_messages.raw_flight_messages WHERE airport = '" + airport_code + "'")
     results = query_job.result() 
-    return results[0]
+
+    result_list = []
+    for result in results:
+        result_list.append(result)
+    return result_list[0]
