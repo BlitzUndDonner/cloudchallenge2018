@@ -9,19 +9,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BigQueryTableWriter extends DoFn<FlightMessageDto, TableRow> {
-
-    private final TableSchema schema;
-
-    public BigQueryTableWriter() {
-        List<TableFieldSchema> fields = new ArrayList<>();
-        fields.add(new TableFieldSchema().setName("timestamp").setType("TIMESTAMP"));
-        fields.add(new TableFieldSchema().setName("flight_number").setType("STRING"));
-        fields.add(new TableFieldSchema().setName("airport").setType("STRING"));
-        fields.add(new TableFieldSchema().setName("message").setType("STRING"));
-
-        schema = new TableSchema().setFields(fields);
-    }
+public class BigQueryRowWriter extends DoFn<FlightMessageDto, TableRow> {
 
     @ProcessElement
     public void processElement(ProcessContext c) {
