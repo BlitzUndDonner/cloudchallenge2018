@@ -3,7 +3,7 @@ steps:
   args:
   - functions
   - deploy
-  - airport_counter
+  - counters
   - --source=./functions
   - --trigger-http
   - --runtime=python37
