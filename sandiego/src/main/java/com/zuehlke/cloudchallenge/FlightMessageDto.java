@@ -1,11 +1,15 @@
 package com.zuehlke.cloudchallenge;
 
+import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.DefaultCoder;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
+import java.io.Serializable;
 
-public class FlightMessageDto {
+@DefaultCoder(AvroCoder.class)
+public class FlightMessageDto implements Serializable {
     @JsonProperty("flight-number")
     private String flightNumber;
 
