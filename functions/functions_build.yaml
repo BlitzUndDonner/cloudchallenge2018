@@ -7,3 +7,4 @@ steps:
   - --source=./functions
   - --trigger-http
   - --runtime=python37
+  - --region=europe-west1
