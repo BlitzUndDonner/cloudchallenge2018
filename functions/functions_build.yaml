@@ -6,3 +6,4 @@ steps:
   - airport_counter
   - --source=./functions
   - --trigger-http
+  - --runtime=python37
