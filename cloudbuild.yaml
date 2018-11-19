@@ -6,4 +6,4 @@ steps:
   args: ['compile', '-e']
 - name: 'gcr.io/cloud-builders/mvn'
   dir: 'cloudchallenge2018/sandiego'
-  args: ['exec:java', '-Dexec.mainClass=com.zuehlke.cloudchallenge.DataFlowMain', '-Dexec.args=--project=cloud-hackathon-team-athena --stagingLocation=gs://cloud-hackathon-team-athena/staging/ --tempLocation=gs://cloud-hackathon-team-athena/staging/ --runner=DataflowRunner --requestTopic=request-t1-europe-west1 --responseTopic=response-t1-europe-west1']
+  args: ['exec:java', '-Dexec.mainClass=com.zuehlke.cloudchallenge.DataFlowMain', '-Dexec.args=--project=cloud-hackathon-team-athena --stagingLocation=gs://cloud-hackathon-team-athena/staging/ --tempLocation=gs://cloud-hackathon-team-athena/staging/ --region=europe-west1 --runner=DataflowRunner --requestTopic=request-t1-europe-west1 --responseTopic=response-t1-europe-west1']
