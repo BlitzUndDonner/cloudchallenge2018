@@ -12,7 +12,12 @@ public class DataExtractorTest {
     @Test
     public void processElement() {
         ProcessContext context = mock(ProcessContext.class);
-        when(context.element()).thenReturn("ewogICJmbGlnaHQtbnVtYmVyIjogIkYtNDUiLAogICJhaXJwb3J0IjogIk4yMUNNIiwKICAibWVzc2FnZSI6ICJoZWxsbyB3b3JsZCBhbHBoYSBicmF2byBjaGFybGllIGRlbHRhIiwKICAidGltZXN0YW1wIjogIjIwMTgtMTEtMTlUMDc6MzI6MDI6MTIzWiIKfQ==");
+        when(context.element()).thenReturn("{\n" +
+                "  \"flight-number\": \"F-45\",\n" +
+                "  \"airport\": \"N21CM\",\n" +
+                "  \"message\": \"hello world alpha bravo charlie delta\",\n" +
+                "  \"timestamp\": \"2018-11-19T07:32:02:123Z\"\n" +
+                "}");
 
         DataExtractor testee = new DataExtractor();
         testee.processElement(context);

@@ -12,15 +12,15 @@ import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.windowing.*;
 import org.apache.beam.sdk.values.PCollection;
-import org.joda.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class DataFlowMain {
+    private static final Logger LOG = LoggerFactory.getLogger(DataFlowMain.class);
 
     public interface DataFlowOptions extends DataflowPipelineOptions {
         @Description("the topic to consume messages from")
@@ -38,30 +38,30 @@ public class DataFlowMain {
 
     public static void main(String[] args) {
         for (int i = 0; i < args.length; i++) {
-            System.out.println("argument " + i + " : " + args[i]);
+            LOG.info("argument " + i + " : " + args[i]);
         }
 
         DataFlowOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(DataFlowOptions.class);
         PipelineOptionsFactory.register(DataFlowOptions.class);
 
         options.setStreaming(true);
-       // options.setFilesToStage(Collections.emptyList());
 
         Pipeline p = Pipeline.create(options);
 
         String requestTopic = "projects/" + options.getProject() + "/topics/" + options.getRequestTopic();
         String responseTopic = "projects/" + options.getProject() + "/topics/" + options.getResponseTopic();
-        System.out.println("RequestTopic: " + requestTopic);
+
+        LOG.info("RequestTopic: " + requestTopic);
+        LOG.info("ResponseTopic: " + responseTopic);
 
         PCollection<FlightMessageDto> currentFlightMessages = p
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(requestTopic))
-               // .apply("SetWindowing", assignMessageWindowFn())
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
-        /*
-        currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()))
-                .apply("WriteToPubSub", PubsubIO.writeAvros(ProcessedFlightMessageDto.class).to(responseTopic));
-*/
+        currentFlightMessages.apply("AddWordCount", ParDo.of(new WordCount()))
+                .apply("MapDtoToString", ParDo.of(new ProcessedFlightMessageSerializer()))
+                .apply("WriteToPubSub", PubsubIO.writeStrings().to(responseTopic));
+
         String table = options.getProject() + ":flight_messages.raw_flight_messages";
         List<TableFieldSchema> fields = new ArrayList<>();
         fields.add(new TableFieldSchema().setName("timestamp").setType("TIMESTAMP"));
@@ -73,26 +73,13 @@ public class DataFlowMain {
 
         currentFlightMessages
                 .apply("WriteBigQueryRow", ParDo.of(new BigQueryRowWriter()))
-                .apply(BigQueryIO.writeTableRows().to(table)//
+                .apply("WriteToBigQuery", BigQueryIO.writeTableRows().to(table)//
                         .withSchema(schema)//
                         .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
                         .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED));
 
         PipelineResult result = p.run();
         result.waitUntilFinish();
-    }
-
-    private static Window<String> assignMessageWindowFn() {
-        return Window.<String>into(FixedWindows.of(Duration.standardSeconds(5)))
-                .withAllowedLateness(Duration.standardDays(1))
-                .triggering(AfterWatermark.pastEndOfWindow()
-                        .withEarlyFirings(AfterPane.elementCountAtLeast(1))
-                        .withLateFirings(AfterFirst.of(
-                                AfterPane.elementCountAtLeast(1),
-                                AfterProcessingTime.pastFirstElementInPane()
-                                        .plusDelayOf(Duration.standardSeconds(1))
-                        )))
-                .discardingFiredPanes();
     }
 
 }
