@@ -1,5 +1,7 @@
 import logging 
+from google.cloud import bigquery
 
+DATASET_ID = 'cloud-hackathon-team-athena:flight_messages'
 
 def counters(request):
     """HTTP Cloud Function.
@@ -15,8 +17,16 @@ def counters(request):
     path = request.path
     airport = path.split('/')[-1]
     
-    countByAirport = 0
+    countByAirport = query_bigquery(airport)
     
     logging.info("Count for airport '%s' = %d", airport, count)
     return airport
     
+    
+
+def query_bigquery(airport_code):
+    # Instantiates a client
+    bigquery_client = bigquery.Client()
+    query_job = client.query("SELECT COUNT(*) FROM flight_messages.raw_flight_messages WHERE airport = " + airport_code)
+    results = query_job.result() 
+    return results[0]
