@@ -3,6 +3,7 @@ package com.zuehlke.cloudchallenge;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import com.google.cloud.training.dataanalyst.sandiego.LaneInfo;
 import com.zuehlke.cloudchallenge.dataFlow.BigQueryRowWriter;
 import com.zuehlke.cloudchallenge.dataFlow.DataExtractor;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
@@ -12,6 +13,7 @@ import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 
@@ -53,7 +55,7 @@ public class DataFlowMain {
                 .apply("GetMessages", PubsubIO.readStrings().fromTopic(topic))
                 .apply("ExtractData", ParDo.of(new DataExtractor()));
 
-        //  currentFlightMessages.apply("WriteToPubSub", PubsubIO.writeAvros(FlightMessageDto.class));
+             currentFlightMessages.apply("Add word count", ParDo.of(new WordCount()));//  currentFlightMessages.apply("WriteToPubSub", PubsubIO.writeAvros(FlightMessageDto.class));
 
         currentFlightMessages
                 .apply("WriteBigQueryRow", ParDo.of(new BigQueryRowWriter()))

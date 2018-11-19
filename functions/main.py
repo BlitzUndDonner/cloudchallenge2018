@@ -14,12 +14,13 @@ def counters(request):
         <http://flask.pocoo.org/docs/0.12/api/#flask.Flask.make_response>.
     """
     
-    path = request.path
-    airport = path.split('/')[-1]
+    #path = request.path
+    #airport = path.split('/')[-1]
     
-    countByAirport = query_bigquery(airport)
+    airport = 'ZRH'
+    countByAirport = query_bigquery(airport)  
     
-    logging.info("Count for airport '%s' = %d", airport, count)
+    logging.info("Count for airport '%s' = %d", airport, countByAirport)
     return airport
     
     
@@ -27,6 +28,6 @@ def counters(request):
 def query_bigquery(airport_code):
     # Instantiates a client
     bigquery_client = bigquery.Client()
-    query_job = client.query("SELECT COUNT(*) FROM flight_messages.raw_flight_messages WHERE airport = " + airport_code)
+    query_job = bigquery_client.query("SELECT COUNT(*) FROM flight_messages.raw_flight_messages WHERE airport = " + airport_code)
     results = query_job.result() 
     return results[0]
