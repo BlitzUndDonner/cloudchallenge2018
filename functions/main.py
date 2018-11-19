@@ -30,9 +30,11 @@ def query_bigquery(airport_code):
     # Instantiates a client
     bigquery_client = bigquery.Client()
     query_job = bigquery_client.query("SELECT COUNT(*) FROM flight_messages.raw_flight_messages WHERE airport = '" + airport_code + "'")
-    results = query_job.result() 
+    rows = query_job.result() 
 
-    result_list = []
-    for result in results:
-        result_list.append(result)
-    return result_list[0]
+    row_list = []
+    for result in rows:
+        row_list.append(result)
+    first_row = row_list[0]
+    return first_row.values()[0]    
+    
