@@ -9,6 +9,8 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 
+import java.util.Collections;
+
 public class DataFlowMain {
 
     public interface DataFlowOptions extends DataflowPipelineOptions {
@@ -20,9 +22,13 @@ public class DataFlowMain {
     }
 
     public static void main(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            System.out.println("argument " + i + " : " + args[i]);
+        }
 
         DataFlowOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(DataFlowOptions.class);
         options.setStreaming(true);
+        options.setFilesToStage(Collections.emptyList());
         Pipeline p = Pipeline.create(options);
 
         String topic = "projects/" + options.getProject() + "/topics/" + "request-t1-europe-north1";

@@ -6,8 +6,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DataExtractorTest {
 
@@ -29,7 +31,7 @@ public class DataExtractorTest {
 
         testee.processElement(processContext);
 
-        verify(processContext).output(captor.capture());
+        verify(processContext).output(any());
 
         // assertEquals("F-45", captor.getValue().getFlightNumber());
     }
