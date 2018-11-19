@@ -1,0 +1,26 @@
+[
+  {
+    "name": "flight_number",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The flight number"
+  },
+  {
+    "name": "airport",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The airport"
+  },
+  {
+    "name": "message",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "The message"
+  },
+  {
+    "name": "timestamp",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "The timestamp"
+  }
+]
